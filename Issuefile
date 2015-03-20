@@ -1,0 +1,47 @@
+Secgen::define_issue do |issue|
+  issue.name        = "ISSUE NAME"
+  issue.authors     = ["John Doe"]
+  issue.email       = ["john@doe.com"]
+  issue.version     = "1.0"
+  issue.description = "An example issue"
+
+  issue.supports :ubuntu, :opensuse
+
+  # [OPTIONAL] issue#mirror tells secgen to mirror the file structure of the
+  # specified path in the virtual machine. e.g. files/etc/nginx.conf will
+  # replace /etc/nginx.conf
+  #
+  # All files with a *.tpl extension will be processed first, before the
+  # extension is removed.
+  #
+  # e.g. files/etc/nginx.conf.tpl => /etc/nginx.conf
+  issue.mirror "files"
+
+  # [OPTIONAL] Specify other issues as dependencies
+  issue.depends_on :issue1, :issue2, :issue3
+
+  # Create a second box with issue1 installed on it
+  issue.setup :issue1
+
+  # Create a third box with issue2 and issue3 installed on it
+  issue.setup :issue2, :issue3
+
+  # [OPTIONAL] issue#setup is run when the issue is first run
+  issue.setup do |box|
+    # Installs the mysql puppet module from puppet/ folder (should be a
+    # submodule of an actual mysql puppet module).
+    box.install "mysql"
+
+    # Install and set up issue_name on same box
+    box.setup :issue1
+
+    box.ip = :auto
+    # box.ip = "1.1.1.2"
+
+    # Any variables specified in issue.env are interpolated into processed
+    # templates.
+    issue.env.name = "username"
+    issue.env.port = 3306
+  end
+
+end
